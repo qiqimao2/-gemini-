@@ -1,0 +1,57 @@
+# LLM代理服务 - Termux一键安装命令
+# 复制粘贴即可运行
+
+## 📱 一键安装命令（复制粘贴到Termux）
+
+```bash
+pkg update -y && pkg upgrade -y
+pkg install git curl -y
+cd ~
+git clone https://github.com/adc666sav466/-gemini-.git
+cd -gemini-
+chmod +x 一键安装-Termux版.sh
+./一键安装-Termux版.sh
+```
+
+## 🎯 安装完成后使用
+
+```bash
+# 启动服务
+sv up llm-proxy
+
+# 查看状态
+sv status llm-proxy
+
+# 查看日志
+tail -f ~/.llm-proxy/logs/llm-proxy.log
+
+# 测试API
+curl http://localhost:8080/
+```
+
+## ⚙️ 配置API密钥
+
+```bash
+# 编辑配置文件
+nano config.ini
+
+# 重启服务
+sv restart llm-proxy
+```
+
+## 📞 故障排除
+
+```bash
+# 查看详细日志
+cat ~/.llm-proxy/logs/llm-proxy.log
+
+# 重启服务
+sv restart llm-proxy
+
+# 停止服务
+sv down llm-proxy
+```
+
+## 🎉 完成！
+
+现在你可以在安卓手机上使用LLM代理服务了！
