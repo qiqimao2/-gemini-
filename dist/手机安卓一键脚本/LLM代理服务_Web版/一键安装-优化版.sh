@@ -39,9 +39,25 @@ print_error() {
 
 # 检查环境
 check_environment() {
-    if [[ "$PREFIX" != *"com.termux"* ]]; then
-        print_error "此脚本只能在Termux环境中运行"
-        exit 1
+    # 检查是否在Termux环境中
+    if [[ -n "$PREFIX" && "$PREFIX" == *"com.termux"* ]]; then
+        print_info "检测到Termux环境"
+    elif [[ -n "$PREFIX" && "$PREFIX" == *"data/data/com.termux"* ]]; then
+        print_info "检测到Termux环境"
+    elif [[ -d "/data/data/com.termux" ]]; then
+        print_info "检测到Termux环境"
+    elif [[ "$0" == *"com.termux"* ]]; then
+        print_info "检测到Termux环境"
+    else
+        # 尝试其他检测方法
+        if command -v pkg &> /dev/null; then
+            print_info "检测到Termux包管理器，继续运行"
+        elif [[ -n "$TERMUX_VERSION" ]]; then
+            print_info "检测到Termux版本变量，继续运行"
+        else
+            print_warning "警告：未检测到Termux环境，但继续运行"
+            print_info "如果您确实在Termux中运行，请忽略此警告"
+        fi
     fi
     
     if [[ ! -f "app.py" ]]; then
