@@ -85,13 +85,13 @@ check_storage_permission() {
 
 # 检查网络连接
 check_network() {
-    print_status "检查网络连接..."
+    print_info "检查网络连接..."
     
     local network_ok=false
     
     # 检查基本网络连接
     if ping -c 1 8.8.8.8 > /dev/null 2>&1; then
-        print_status "基本网络连接正常"
+        print_info "基本网络连接正常"
         network_ok=true
     else
         print_warning "基本网络连接失败"
@@ -99,7 +99,7 @@ check_network() {
     
     # 检查DNS解析
     if nslookup google.com > /dev/null 2>&1; then
-        print_status "DNS解析正常"
+        print_info "DNS解析正常"
     else
         print_warning "DNS解析可能有问题"
         network_ok=false
@@ -107,7 +107,7 @@ check_network() {
     
     # 检查PyPI访问
     if curl -s --connect-timeout 5 https://pypi.org > /dev/null; then
-        print_status "PyPI访问正常"
+        print_info "PyPI访问正常"
     else
         print_warning "PyPI访问可能有问题"
         network_ok=false
@@ -124,9 +124,9 @@ check_network() {
 index-url = https://pypi.tuna.tsinghua.edu.cn/simple
 trusted-host = pypi.tuna.tsinghua.edu.cn
 EOF
-        print_status "已配置pip使用清华镜像"
+        print_info "已配置pip使用清华镜像"
     else
-        print_status "网络连接正常"
+        print_info "网络连接正常"
     fi
 }
 
