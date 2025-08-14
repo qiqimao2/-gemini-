@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM代理服务管理器</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-3 sidebar">
+                <div class="sidebar-header">
+                    <h4><i class="fas fa-robot"></i> LLM代理服务</h4>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-tab="basic">
+                            <i class="fas fa-cog"></i> 基础配置
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="api-keys">
+                            <i class="fas fa-key"></i> API密钥管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="status">
+                            <i class="fas fa-chart-line"></i> 服务状态
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="quick-start">
+                            <i class="fas fa-rocket"></i> 快速启动
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="col-md-9 main-content">
+                <!-- 顶部状态栏 -->
+                <div class="top-bar">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5>LLM代理服务管理器</h5>
+                        <div class="server-status">
+                            <span id="status-indicator" class="badge bg-secondary">
+                                <i class="fas fa-circle"></i> 服务未运行
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速启动标签页 -->
+                <div id="quick-start-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-rocket"></i> 快速启动指南</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6>🎯 一键启动服务</h6>
+                                    <p class="text-muted">点击下方按钮即可启动LLM代理服务</p>
+                                    
+                                    <div class="d-grid gap-2 mb-4">
+                                        <button id="quick-start-btn" class="btn btn-success btn-lg">
+                                            <i class="fas fa-play"></i> 立即启动服务
+                                        </button>
+                                        <button id="quick-stop-btn" class="btn btn-danger btn-lg" disabled>
+                                            <i class="fas fa-stop"></i> 停止服务
+                                        </button>
+                                    </div>
+
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-info-circle"></i> 使用说明：</h6>
+                                        <ol>
+                                            <li>点击"立即启动服务"按钮启动API服务</li>
+                                            <li>等待状态显示为"服务运行中"</li>
+                                            <li>API服务地址：<code>http://localhost:8080</code></li>
+                                            <li>使用API密钥：<code id="current-api-key">123</code></li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="alert alert-warning">
+                                        <h6><i class="fas fa-exclamation-triangle"></i> 注意事项：</h6>
+                                        <ul>
+                                            <li>确保已配置有效的API密钥</li>
+                                            <li>首次使用请检查"API密钥管理"标签页</li>
+                                            <li>服务启动后请勿关闭此窗口</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基础配置标签页 -->
+                <div id="basic-tab" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-server"></i> 服务器配置</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="server-config-form">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="api-port" class="form-label">API端口</label>
+                                            <input type="number" class="form-control" id="api-port" value="8080">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="api-host" class="form-label">API主机</label>
+                                            <input type="text" class="form-control" id="api-host" value="0.0.0.0">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="web-port" class="form-label">Web端口</label>
+                                            <input type="number" class="form-control" id="web-port" value="5000">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="web-host" class="form-label">Web主机</label>
+                                            <input type="text" class="form-control" id="web-host" value="127.0.0.1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="api-key" class="form-label">服务API密钥</label>
+                                    <input type="password" class="form-control" id="api-key" value="123">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="min-length" class="form-label">最小响应字符数</label>
+                                            <input type="number" class="form-control" id="min-length" value="400">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="timeout" class="form-label">请求超时(秒)</label>
+                                            <input type="number" class="form-control" id="timeout" value="30">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="base-url" class="form-label">基础URL</label>
+                                    <input type="text" class="form-control" id="base-url" value="https://generativelanguage.googleapis.com/v1beta">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API密钥管理标签页 -->
+                <div id="api-keys-tab" class="tab-content">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-users"></i> 第一组API密钥</h5>
+                                </div>
+                                <div class="card-body">
+                                    <textarea class="form-control" id="group1-keys" rows="10" placeholder="每行一个API密钥"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-users"></i> 第二组API密钥</h5>
+                                </div>
+                                <div class="card-body">
+                                    <textarea class="form-control" id="group2-keys" rows="10" placeholder="每行一个API密钥"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 服务状态标签页 -->
+                <div id="status-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle"></i> 服务信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <strong>API服务状态:</strong>
+                                        <span id="api-status" class="badge bg-secondary">未运行</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <strong>API服务地址:</strong>
+                                        <span id="api-url">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <strong>Web服务状态:</strong>
+                                        <span class="badge bg-success">运行中</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <strong>Web服务地址:</strong>
+                                        <span id="web-url">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部控制栏 -->
+                <div class="bottom-bar">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button id="start-server-btn" class="btn btn-success">
+                                <i class="fas fa-play"></i> 启动API服务
+                            </button>
+                            <button id="stop-server-btn" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop"></i> 停止API服务
+                            </button>
+                        </div>
+                        <div>
+                            <button id="save-config-btn" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存配置
+                            </button>
+                            <button id="reload-config-btn" class="btn btn-secondary">
+                                <i class="fas fa-refresh"></i> 重新加载
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notification-container"></div>
+
+    <!-- 启动确认模态框 -->
+    <div class="modal fade" id="startConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">确认启动服务</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>确定要启动LLM代理服务吗？</p>
+                    <div class="alert alert-warning">
+                        <small>请确保已配置有效的API密钥，否则服务可能无法正常工作。</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="confirm-start-btn">确认启动</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/app-fixed.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/debug.js') }}"></script>
+    
+    <script>
+        // 快速启动页面的额外脚本
+        document.addEventListener('DOMContentLoaded', function() {
+            const quickStartBtn = document.getElementById('quick-start-btn');
+            const quickStopBtn = document.getElementById('quick-stop-btn');
+            const confirmStartBtn = document.getElementById('confirm-start-btn');
+            const startConfirmModal = new bootstrap.Modal(document.getElementById('startConfirmModal'));
+            
+            // 更新当前API密钥显示
+            function updateApiKeyDisplay() {
+                const apiKeyInput = document.getElementById('api-key');
+                const currentApiKey = document.getElementById('current-api-key');
+                if (apiKeyInput && currentApiKey) {
+                    currentApiKey.textContent = apiKeyInput.value || '123';
+                }
+            }
+            
+            // 监听API密钥变化
+            const apiKeyInput = document.getElementById('api-key');
+            if (apiKeyInput) {
+                apiKeyInput.addEventListener('input', updateApiKeyDisplay);
+            }
+            
+            // 快速启动按钮
+            if (quickStartBtn) {
+                quickStartBtn.addEventListener('click', function() {
+                    startConfirmModal.show();
+                });
+            }
+            
+            // 确认启动按钮
+            if (confirmStartBtn) {
+                confirmStartBtn.addEventListener('click', function() {
+                    startConfirmModal.hide();
+                    if (window.llmProxyApp) {
+                        window.llmProxyApp.startServer();
+                    }
+                });
+            }
+            
+            // 快速停止按钮
+            if (quickStopBtn) {
+                quickStopBtn.addEventListener('click', function() {
+                    if (window.llmProxyApp) {
+                        window.llmProxyApp.stopServer();
+                    }
+                });
+            }
+            
+            // 同步按钮状态
+            const originalUpdateServerButtons = window.llmProxyApp?.updateServerButtons;
+            if (originalUpdateServerButtons) {
+                window.llmProxyApp.updateServerButtons = function(isRunning) {
+                    originalUpdateServerButtons.call(window.llmProxyApp, isRunning);
+                    if (quickStartBtn) quickStartBtn.disabled = isRunning;
+                    if (quickStopBtn) quickStopBtn.disabled = !isRunning;
+                };
+            }
+            
+            // 初始化显示
+            updateApiKeyDisplay();
+        });
+    </script>
+</body>
+</html>
