@@ -47,10 +47,16 @@ check_termux() {
     fi
     
     # 检查是否在项目目录
+    # 检查是否在项目根目录 - 更健壮的检查方式
     if [[ ! -f "$PROJECT_DIR/app.py" ]]; then
         print_error "请在项目根目录运行此脚本"
+        print_error "项目目录: $PROJECT_DIR"
+        print_error "当前目录内容:"
+        ls -la "$PROJECT_DIR"
         exit 1
     fi
+    
+    print_status "确认在项目根目录，找到 app.py 文件"
 }
 
 # 检查网络连接

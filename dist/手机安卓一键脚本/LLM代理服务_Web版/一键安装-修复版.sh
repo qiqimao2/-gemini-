@@ -83,10 +83,16 @@ check_environment() {
         fi
     fi
     
+    # 检查是否在项目根目录 - 更健壮的检查方式
     if [[ ! -f "app.py" ]]; then
         print_error "请在项目根目录运行此脚本"
+        print_error "当前目录: $(pwd)"
+        print_error "当前目录内容:"
+        ls -la
         exit 1
     fi
+    
+    print_info "确认在项目根目录，找到 app.py 文件"
 }
 
 # 检查存储权限
