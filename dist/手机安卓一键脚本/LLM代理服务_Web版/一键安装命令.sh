@@ -37,12 +37,12 @@ main() {
     cd ~
     if [ -d "-gemini-" ]; then
         echo "项目已存在，更新中..."
-        cd -gemini-
+        cd ./-gemini-
         git pull || echo "无法更新，使用现有版本"
     else
         echo "克隆你的GitHub项目..."
         git clone https://github.com/adc666sav466/-gemini-.git
-        cd -gemini-
+        cd ./-gemini-
     fi
     
     # 4. 检查是否有Web版目录
