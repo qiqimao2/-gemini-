@@ -27,7 +27,16 @@ fi
 # 检查依赖是否安装
 if [ ! -f "$PROJECT_DIR/requirements_installed" ]; then
     echo "正在安装依赖..." >> "$LOG_FILE"
-    pip install -r requirements.txt >> "$LOG_FILE" 2>&1
+    
+    # 优先使用Termux优化的依赖文件
+    if [ -f "$PROJECT_DIR/termux-services/requirements-termux.txt" ]; then
+        pip install -r "$PROJECT_DIR/termux-services/requirements-termux.txt" >> "$LOG_FILE" 2>&1
+    elif [ -f "$PROJECT_DIR/requirements-termux.txt" ]; then
+        pip install -r "$PROJECT_DIR/requirements-termux.txt" >> "$LOG_FILE" 2>&1
+    else
+        pip install -r requirements.txt >> "$LOG_FILE" 2>&1
+    fi
+    
     if [ $? -eq 0 ]; then
         touch "$PROJECT_DIR/requirements_installed"
         echo "依赖安装完成" >> "$LOG_FILE"

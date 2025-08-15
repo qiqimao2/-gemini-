@@ -53,16 +53,19 @@ main() {
     
     # 5. 运行安装脚本
     echo "运行Termux安装脚本..."
-    if [ -f "一键安装-Termux版.sh" ]; then
-        chmod +x 一键安装-Termux版.sh
-        ./一键安装-Termux版.sh
+    if [ -f "一键安装-完整修复版.sh" ]; then
+        chmod +x 一键安装-完整修复版.sh
+        ./一键安装-完整修复版.sh
     elif [ -f "install-termux-fixed.sh" ]; then
         chmod +x install-termux-fixed.sh
         ./install-termux-fixed.sh
+    elif [ -f "install-termux.sh" ]; then
+        chmod +x install-termux.sh
+        ./install-termux.sh
     else
-        echo "使用基础安装..."
-        chmod +x 一键安装-Termux版.sh
-        ./一键安装-Termux版.sh
+        echo "使用修复版安装..."
+        chmod +x 一键安装-修复版.sh
+        ./一键安装-修复版.sh
     fi
     
     echo -e "${GREEN}安装完成！${NC}"
