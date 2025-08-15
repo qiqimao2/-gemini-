@@ -598,13 +598,32 @@ if FLASK_AVAILABLE:
                 
                 def run_api_server():
                     try:
-                        import uvicorn
-                        uvicorn.run(
-                            app_fastapi,
-                            host=server_config['host'],
-                            port=server_config['port'],
-                            log_level="info"
-                        )
+                        # Termux环境检测，不使用uvicorn
+                        if IS_TERMUX:
+                            import asyncio
+                            import hypercorn.asyncio
+                            from hypercorn.config import Config
+                            
+                            config = Config()
+                            config.bind = [f"{server_config['host']}:{server_config['port']}"]
+                            config.loglevel = "info"
+                            
+                            asyncio.run(hypercorn.asyncio.serve(app_fastapi, config))
+                        else:
+                            import uvicorn
+                            uvicorn.run(
+                                app_fastapi,
+                                host=server_config['host'],
+                                port=server_config['port'],
+                                log_level="info"
+                            )
+                    except ImportError:
+                        # 如果hypercorn也不可用，使用简单的HTTP服务器
+                        if IS_TERMUX:
+                            import warnings
+                            warnings.warn("uvicorn和hypercorn都不可用，API服务器功能受限")
+                        else:
+                            raise
                     except Exception as e:
                         logger.error(f"API服务器运行错误: {e}")
                         with api_server_lock:
@@ -670,19 +689,33 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == 'cli':
         if not FASTAPI_AVAILABLE:
             print("错误：缺少运行命令行服务所需的FastAPI依赖。")
-            print("请运行 'pip install fastapi uvicorn httpx pydantic python-multipart'")
+            print("请运行 'pip install fastapi httpx pydantic python-multipart'")
             return
             
         print("正在以命令行模式启动API服务...")
         server_config = config_manager.get_server_config()
         
-        # 导入uvicorn
-        try:
-            import uvicorn
-            uvicorn.run(app_fastapi, host=server_config['host'], port=server_config['port'])
-        except ImportError:
-            print("错误：缺少uvicorn依赖。请运行 'pip install uvicorn'")
+        # Termux环境检测，不使用uvicorn
+        if IS_TERMUX:
+            print("Termux环境：使用Flask替代FastAPI")
+            if FLASK_AVAILABLE:
+                socketio.run(
+                    app_flask,
+                    host=server_config['host'],
+                    port=server_config['port'],
+                    debug=False
+                )
+            else:
+                print("错误：Flask也不可用")
             return
+        else:
+            # 导入uvicorn
+            try:
+                import uvicorn
+                uvicorn.run(app_fastapi, host=server_config['host'], port=server_config['port'])
+            except ImportError:
+                print("错误：缺少uvicorn依赖。请运行 'pip install uvicorn'")
+                return
     else:
         if not FLASK_AVAILABLE:
             print("错误：缺少运行Web界面所需的Flask依赖。")
