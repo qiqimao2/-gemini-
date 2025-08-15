@@ -18,9 +18,13 @@ import signal
 import platform
 import socket
 import subprocess
-import webbrowser
 from pathlib import Path
 from typing import List, Dict, Any
+
+# Termux环境检测
+IS_TERMUX = os.path.exists('/data/data/com.termux/files/usr/bin/bash')
+if IS_TERMUX:
+    print("检测到Termux环境，启用移动端优化配置")
 
 # 尝试导入Flask相关模块
 try:
@@ -75,8 +79,8 @@ class ConfigManager:
             'host': '0.0.0.0',
             'api_key': '123',
             'min_response_length': '400',
-            'request_timeout': '180',
-            'web_port': '5001',
+            'request_timeout': '30',
+            'web_port': '5000',
             'web_host': '127.0.0.1'
         }
         
@@ -168,6 +172,24 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# 防止休眠的线程
+def keep_alive():
+    """保持服务活跃的线程"""
+    import threading
+    import time
+    
+    def _keep_alive_worker():
+        while True:
+            # 定期记录心跳，防止系统休眠
+            logger.debug("服务心跳 - 保持活跃")
+            time.sleep(30)  # 每30秒记录一次
+    
+    keep_alive_thread = threading.Thread(target=_keep_alive_worker, daemon=True)
+    keep_alive_thread.start()
+
+# 启动保持活跃线程
+keep_alive()
 
 # 全局配置管理器实例
 config_manager = ConfigManager()
@@ -672,25 +694,7 @@ def main():
         print("正在启动Web界面...")
         server_config = config_manager.get_server_config()
         
-        # 构建Web界面URL
-        web_url = f"http://{server_config['web_host']}:{server_config['web_port']}"
-        
-        # 启动Flask应用前，延迟1秒后自动打开浏览器
-        def open_browser():
-            time.sleep(1.5)  # 等待服务器启动
-            try:
-                webbrowser.open(web_url)
-                print(f"已自动打开浏览器: {web_url}")
-            except Exception as e:
-                print(f"自动打开浏览器失败: {e}")
-                print(f"请手动访问: {web_url}")
-        
-        # 在新线程中打开浏览器，避免阻塞主线程
-        browser_thread = threading.Thread(target=open_browser, daemon=True)
-        browser_thread.start()
-        
         # 启动Flask应用
-        print(f"Web界面将运行在: {web_url}")
         socketio.run(
             app_flask,
             host=server_config['web_host'],
